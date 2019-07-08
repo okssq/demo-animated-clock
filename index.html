@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>在线小时钟~~</title>
+    <script src="./vue.dist.js"></script>
+    <style>
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            font-size: 12px;
+        }
+
+        #clock {
+            font-weight: bold;
+            width: 700px;
+            height: 700px;
+            margin: 50px auto;
+            position: relative;
+            color: #606266;
+        }
+
+        .years,
+        .months,
+        .days,
+        .hours,
+        .mins,
+        .seconds {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            line-height: 30px;
+            height: 30px;
+            margin-top: -15px;
+            width: 350px;
+            transform-origin: 0 15px;
+        }
+
+        .transform {
+            transition: transform 1s;
+        }
+
+        .months-item,
+        .days-item,
+        .hours-item,
+        .mins-item,
+        .seconds-item {
+            position: absolute;
+            transform-origin: 0 15px;
+            transform: rotate(0);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .years {
+            width: 100px;
+            text-align: center;
+            margin-left: -50px;
+            color: #f00;
+        }
+
+        .months-item {
+            transition: transform 3s;
+            padding-left: 46px;
+        }
+
+        .days-item {
+            padding-left: 96px;
+            transition: transform 7.5s;
+        }
+
+        .hours-item {
+            padding-left: 160px;
+            transition: transform 6s;
+        }
+
+        .mins-item {
+            padding-left: 226px;
+            transition: transform 7.5s;
+        }
+
+        .seconds-item {
+            padding-left: 300px;
+            transition: transform 7.5s;
+        }
+
+        .text-bold {
+            color: #f00;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="clock">
+        <div class="years" style="'font-weight':bold">{{now_years | yearFormat}}</div>
+        <div class="months" :style="{transform: 'rotate('+-30*now_months+'deg)'}" :class="{transform:now_months!==0}">
+            <div class="months-item" v-for="(item,index) in months" :key="item.name"
+                :class="{ 'text-bold' : index === now_months }" :style="{transform: 'rotate('+30*item.index+'deg)'}">
+                {{item.name}}</div>
+        </div>
+        <div class="days" :style="{transform: 'rotate('+360/days.length*now_days+'deg)'}"
+            :class="{transform:now_days!==0}">
+            <div class="days-item" v-for="(item,index) in days" :key="item.name"
+                :class="{ 'text-bold' : index === now_days }"
+                :style="{transform: 'rotate('+-360/days.length*item.index+'deg)'}">{{item.name}}</div>
+        </div>
+        <div class="hours" :style="{transform: 'rotate('+-15*now_hours+'deg)'}" :class="{transform:now_hours!==0}">
+            <div class="hours-item" v-for="(item,index) in hours" :key="item.name"
+                :class="{ 'text-bold' : index === now_hours }" :style="{transform: 'rotate('+15*item.index+'deg)'}">
+                {{item.name}}</div>
+        </div>
+        <div class="mins" :style="{transform: 'rotate('+6*now_mins+'deg)'}" :class="{transform:now_mins!==0}">
+            <div class="mins-item" v-for="(item,index) in mins" :key="item.name"
+                :class="{ 'text-bold' : index === now_mins }" :style="{transform: 'rotate('+-6*item.index+'deg)'}">
+                {{item.name}}</div>
+        </div>
+        <div class="seconds" :style="{transform: 'rotate(' + -6*now_seconds +'deg)'}"
+            :class="{transform:now_seconds!==0}">
+            <div class="seconds-item" v-for="(item,index) in seconds" :key="item.name"
+                :class="{ 'text-bold' : index === now_seconds }" :style="{transform: 'rotate('+6*item.index+'deg)'}">
+                {{item.name}}</div>
+        </div>
+    </div>
+    <script>
+        var vm = new Vue({
+            el: '#clock',
+            filters: {
+                yearFormat(value) {
+                    let zw = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
+                    let num_arr = (value + '').split('');
+                    num_arr.forEach((el, index, data) => {
+                        data[index] = zw[el];
+                    });
+                    return num_arr.join('');
+                }
+            },
+            data: {
+                months: [
+                    { name: "一月", index: 0 },
+                    { name: "二月", index: 0 },
+                    { name: "三月", index: 0 },
+                    { name: "四月", index: 0 },
+                    { name: "五月", index: 0 },
+                    { name: "六月", index: 0 },
+                    { name: "七月", index: 0 },
+                    { name: "八月", index: 0 },
+                    { name: "九月", index: 0 },
+                    { name: "十月", index: 0 },
+                    { name: "十一月", index: 0 },
+                    { name: "十二月", index: 0 }
+                ],
+                days: [],
+                days_30: [
+                    { name: "一日", index: 0 },
+                    { name: "二日", index: 0 },
+                    { name: "三日", index: 0 },
+                    { name: "四日", index: 0 },
+                    { name: "五日", index: 0 },
+                    { name: "六日", index: 0 },
+                    { name: "七日", index: 0 },
+                    { name: "八日", index: 0 },
+                    { name: "九日", index: 0 },
+                    { name: "十日", index: 0 },
+                    { name: "十一日", index: 0 },
+                    { name: "十二日", index: 0 },
+                    { name: "十三日", index: 0 },
+                    { name: "十四日", index: 0 },
+                    { name: "十五日", index: 0 },
+                    { name: "十六日", index: 0 },
+                    { name: "十七日", index: 0 },
+                    { name: "十八日", index: 0 },
+                    { name: "十九日", index: 0 },
+                    { name: "二十日", index: 0 },
+                    { name: "二十一日", index: 0 },
+                    { name: "二十二日", index: 0 },
+                    { name: "二十三日", index: 0 },
+                    { name: "二十四日", index: 0 },
+                    { name: "二十五日", index: 0 },
+                    { name: "二十六日", index: 0 },
+                    { name: "二十七日", index: 0 },
+                    { name: "二十八日", index: 0 },
+                    { name: "二十九日", index: 0 },
+                    { name: "三十日", index: 0 }
+                ],
+                days_31: [
+                    { name: "一日", index: 0 },
+                    { name: "二日", index: 0 },
+                    { name: "三日", index: 0 },
+                    { name: "四日", index: 0 },
+                    { name: "五日", index: 0 },
+                    { name: "六日", index: 0 },
+                    { name: "七日", index: 0 },
+                    { name: "八日", index: 0 },
+                    { name: "九日", index: 0 },
+                    { name: "十日", index: 0 },
+                    { name: "十一日", index: 0 },
+                    { name: "十二日", index: 0 },
+                    { name: "十三日", index: 0 },
+                    { name: "十四日", index: 0 },
+                    { name: "十五日", index: 0 },
+                    { name: "十六日", index: 0 },
+                    { name: "十七日", index: 0 },
+                    { name: "十八日", index: 0 },
+                    { name: "十九日", index: 0 },
+                    { name: "二十日", index: 0 },
+                    { name: "二十一日", index: 0 },
+                    { name: "二十二日", index: 0 },
+                    { name: "二十三日", index: 0 },
+                    { name: "二十四日", index: 0 },
+                    { name: "二十五日", index: 0 },
+                    { name: "二十六日", index: 0 },
+                    { name: "二十七日", index: 0 },
+                    { name: "二十八日", index: 0 },
+                    { name: "二十九日", index: 0 },
+                    { name: "三十日", index: 0 },
+                    { name: "三十一日", index: 0 }
+                ],
+                hours: [
+                    { name: "零时", index: 0 },
+                    { name: "一时", index: 0 },
+                    { name: "二时", index: 0 },
+                    { name: "三时", index: 0 },
+                    { name: "四时", index: 0 },
+                    { name: "五时", index: 0 },
+                    { name: "六时", index: 0 },
+                    { name: "七时", index: 0 },
+                    { name: "八时", index: 0 },
+                    { name: "九时", index: 0 },
+                    { name: "十时", index: 0 },
+                    { name: "十一时", index: 0 },
+                    { name: "十二时", index: 0 },
+                    { name: "十三时", index: 0 },
+                    { name: "十四时", index: 0 },
+                    { name: "十五时", index: 0 },
+                    { name: "十六时", index: 0 },
+                    { name: "十七时", index: 0 },
+                    { name: "十八时", index: 0 },
+                    { name: "十九时", index: 0 },
+                    { name: "二十时", index: 0 },
+                    { name: "二十一时", index: 0 },
+                    { name: "二十二时", index: 0 },
+                    { name: "二十三时", index: 0 }
+                ],
+                mins: [
+                    { name: "零分", index: 0 },
+                    { name: "一分", index: 0 },
+                    { name: "二分", index: 0 },
+                    { name: "三分", index: 0 },
+                    { name: "四分", index: 0 },
+                    { name: "五分", index: 0 },
+                    { name: "六分", index: 0 },
+                    { name: "七分", index: 0 },
+                    { name: "八分", index: 0 },
+                    { name: "九分", index: 0 },
+                    { name: "十分", index: 0 },
+                    { name: "十一分", index: 0 },
+                    { name: "十二分", index: 0 },
+                    { name: "十三分", index: 0 },
+                    { name: "十四分", index: 0 },
+                    { name: "十五分", index: 0 },
+                    { name: "十六分", index: 0 },
+                    { name: "十七分", index: 0 },
+                    { name: "十八分", index: 0 },
+                    { name: "十九分", index: 0 },
+                    { name: "二十分", index: 0 },
+                    { name: "二十一分", index: 0 },
+                    { name: "二十二分", index: 0 },
+                    { name: "二十三分", index: 0 },
+                    { name: "二十四分", index: 0 },
+                    { name: "二十五分", index: 0 },
+                    { name: "二十六分", index: 0 },
+                    { name: "二十七分", index: 0 },
+                    { name: "二十八分", index: 0 },
+                    { name: "二十九分", index: 0 },
+                    { name: "三十分", index: 0 },
+                    { name: "三十一分", index: 0 },
+                    { name: "三十二分", index: 0 },
+                    { name: "三十三分", index: 0 },
+                    { name: "三十四分", index: 0 },
+                    { name: "三十五分", index: 0 },
+                    { name: "三十六分", index: 0 },
+                    { name: "三十七分", index: 0 },
+                    { name: "三十八分", index: 0 },
+                    { name: "三十九分", index: 0 },
+                    { name: "四十分", index: 0 },
+                    { name: "四十一分", index: 0 },
+                    { name: "四十二分", index: 0 },
+                    { name: "四十三分", index: 0 },
+                    { name: "四十四分", index: 0 },
+                    { name: "四十五分", index: 0 },
+                    { name: "四十六分", index: 0 },
+                    { name: "四十七分", index: 0 },
+                    { name: "四十八分", index: 0 },
+                    { name: "四十九分", index: 0 },
+                    { name: "五十分", index: 0 },
+                    { name: "五十一分", index: 0 },
+                    { name: "五十二分", index: 0 },
+                    { name: "五十三分", index: 0 },
+                    { name: "五十四分", index: 0 },
+                    { name: "五十五分", index: 0 },
+                    { name: "五十六分", index: 0 },
+                    { name: "五十七分", index: 0 },
+                    { name: "五十八分", index: 0 },
+                    { name: "五十九分", index: 0 }
+                ],
+                seconds: [
+                    { name: "零秒", index: 0 },
+                    { name: "一秒", index: 0 },
+                    { name: "二秒", index: 0 },
+                    { name: "三秒", index: 0 },
+                    { name: "四秒", index: 0 },
+                    { name: "五秒", index: 0 },
+                    { name: "六秒", index: 0 },
+                    { name: "七秒", index: 0 },
+                    { name: "八秒", index: 0 },
+                    { name: "九秒", index: 0 },
+                    { name: "十秒", index: 0 },
+                    { name: "十一秒", index: 0 },
+                    { name: "十二秒", index: 0 },
+                    { name: "十三秒", index: 0 },
+                    { name: "十四秒", index: 0 },
+                    { name: "十五秒", index: 0 },
+                    { name: "十六秒", index: 0 },
+                    { name: "十七秒", index: 0 },
+                    { name: "十八秒", index: 0 },
+                    { name: "十九秒", index: 0 },
+                    { name: "二十秒", index: 0 },
+                    { name: "二十一秒", index: 0 },
+                    { name: "二十二秒", index: 0 },
+                    { name: "二十三秒", index: 0 },
+                    { name: "二十四秒", index: 0 },
+                    { name: "二十五秒", index: 0 },
+                    { name: "二十六秒", index: 0 },
+                    { name: "二十七秒", index: 0 },
+                    { name: "二十八秒", index: 0 },
+                    { name: "二十九秒", index: 0 },
+                    { name: "三十秒", index: 0 },
+                    { name: "三十一秒", index: 0 },
+                    { name: "三十二秒", index: 0 },
+                    { name: "三十三秒", index: 0 },
+                    { name: "三十四秒", index: 0 },
+                    { name: "三十五秒", index: 0 },
+                    { name: "三十六秒", index: 0 },
+                    { name: "三十七秒", index: 0 },
+                    { name: "三十八秒", index: 0 },
+                    { name: "三十九秒", index: 0 },
+                    { name: "四十秒", index: 0 },
+                    { name: "四十一秒", index: 0 },
+                    { name: "四十二秒", index: 0 },
+                    { name: "四十三秒", index: 0 },
+                    { name: "四十四秒", index: 0 },
+                    { name: "四十五秒", index: 0 },
+                    { name: "四十六秒", index: 0 },
+                    { name: "四十七秒", index: 0 },
+                    { name: "四十八秒", index: 0 },
+                    { name: "四十九秒", index: 0 },
+                    { name: "五十秒", index: 0 },
+                    { name: "五十一秒", index: 0 },
+                    { name: "五十二秒", index: 0 },
+                    { name: "五十三秒", index: 0 },
+                    { name: "五十四秒", index: 0 },
+                    { name: "五十五秒", index: 0 },
+                    { name: "五十六秒", index: 0 },
+                    { name: "五十七秒", index: 0 },
+                    { name: "五十八秒", index: 0 },
+                    { name: "五十九秒", index: 0 }
+                ],
+                now_years: 1970,
+                now_months: 0,
+                now_days: 0,
+                now_hours: 0,
+                now_mins: 0,
+                now_seconds: 0
+            },
+            mounted() {
+                this.init();
+            },
+            methods: {
+                init() {
+                    let max_days = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate(); //当前一个月的天数
+                    if (max_days === 30) {
+                        this.days = this.days_30;
+                    } else {
+                        this.days = this.days_31;
+                    }
+                    setTimeout(() => {
+                        this.fn_index(this.months);
+                        this.fn_index(this.days);
+                        this.fn_index(this.hours);
+                        this.fn_index(this.mins);
+                        this.fn_index(this.seconds);
+                    }, 1000);
+
+                    setTimeout(() => {
+                        this.set_data();
+                    }, 8000);
+
+                    setTimeout(() => {
+                        setInterval(() => {
+                            this.set_data();
+                        }, 1000);
+                    }, 8500);
+                },
+                fn_index(data, type) {
+                    if (type === "reset") {
+                        data.forEach(el => (el.index = 0));
+                    } else {
+                        data.forEach((el, ind) => (el.index = ind));
+                    }
+                },
+                set_data() {
+                    this.now_years = new Date().getFullYear();
+                    this.now_months = new Date().getMonth();
+                    this.now_days = new Date().getDate() - 1;
+                    this.now_hours = new Date().getHours();
+                    this.now_mins = new Date().getMinutes();
+                    this.now_seconds = new Date().getSeconds();
+                }
+            }
+
+        })
+    </script>
+</body>
+
+</html>
